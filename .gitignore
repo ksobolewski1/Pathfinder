@@ -1,0 +1,15 @@
+Pathfinder.sln 
+x64/
+Pathfinder/x64
+.vs
+Pathfinder/SFML
+Pathfinder/Pathfinder.vcxproj
+Pathfinder/Pathfinder.vcxproj.filters
+Pathfinder/Pathfinder.vcxproj.user
+Pathfinder/sfml-graphics-2.dll
+Pathfinder/sfml-graphics-d-2.dll
+Pathfinder/sfml-system-2.dll
+Pathfinder/sfml-system-d-2.dll
+Pathfinder/sfml-window-2.dll
+Pathfinder/sfml-window-d-2.dll
+windows/Pathfinder.pdb
