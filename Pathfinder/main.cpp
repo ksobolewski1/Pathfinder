@@ -23,7 +23,7 @@ int main() {
 
         interface->Update(Window);
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::T)) interface->Test(Window);
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace)) interface->Test(Window);
 
         Window.display();
     }

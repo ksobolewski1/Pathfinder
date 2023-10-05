@@ -320,7 +320,7 @@ struct Edge* BowyerWatson(int pt_count, struct Point* points, float excircle_rad
 			if (CircumcircleContains(points[pt_i], triangles[j].circumcircle)) bad_tr[bad_tr_count++] = triangles[j];
 		}
 
-		// represneting the polygon hole with poly_edges lookup array, consisting of all unique edges of the bad triangles
+		// representing the polygon hole with poly_edges lookup array, consisting of all unique edges of the bad triangles
 		int edges_arr_size = bad_tr_count * 3; 
 		struct PolyEdge* poly_edges = (struct PolyEdge*)malloc(sizeof(struct PolyEdge) * edges_arr_size);
 		for (int i = 0; i < edges_arr_size; ++i) poly_edges[i] = null_edge; 
@@ -410,11 +410,23 @@ struct Edge* BowyerWatson(int pt_count, struct Point* points, float excircle_rad
 	
 	// assemble the return array // most edges are duplicated, and are skipped using a lookup table similar to polygon hole edges above 
 	int edge_count = 0; 
-	int lookup_size = (tr_count << 2) >> 1;
-	struct Edge* res = (struct Edge*)malloc(sizeof(struct Edge) * tr_count * 3);
+	int lookup_size = tr_count * 3;
+
+	if (tr_count == 0) {
+		free(triangles);
+		return NULL;
+	}
+
+	struct Edge* res = (struct Edge*)malloc(sizeof(struct Edge) * lookup_size + sizeof(struct Edge));
 	struct PolyEdge* lookup = (struct PolyEdge*)malloc(sizeof(struct PolyEdge) * lookup_size);
 	for (int i = 0; i < lookup_size; ++i) lookup[i] = null_edge;
-	if (tr_count == 0 || res == NULL) return NULL; 
+
+	if (lookup == NULL || res == NULL) {
+		if (lookup != NULL) free(lookup);
+		if (res != NULL) free(res);
+		free(triangles);
+		return NULL;
+	}
 
 	printf("Removing invalid nodes...\n");
 
@@ -445,6 +457,8 @@ struct Edge* BowyerWatson(int pt_count, struct Point* points, float excircle_rad
 			res[edge_count++] = res_edge;
 		}
 	}
+
+	if (edge_count == 0) printf("No valid edges remaining\n");
 
 	struct Edge last;
 	last.start = -1; 

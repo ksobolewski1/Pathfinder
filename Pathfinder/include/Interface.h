@@ -90,11 +90,12 @@ public:
 	void Update(sf::RenderWindow& win);
 
 	void Test(sf::RenderWindow& win) {
+		SetMeshSize();
 		std::chrono::steady_clock::time_point start = std::chrono::high_resolution_clock::now();
 		for (int i = 0; i < 1000; ++i) {
 			Reset();
 			GetObstacleDisplay(win.getSize().x, win.getSize().y);
-			nav_mesh = nav_mesh = new NavMesh(win.getSize().x, win.getSize().y, 1000, GetObstacleData());
+			nav_mesh = nav_mesh = new NavMesh(win.getSize().x, win.getSize().y, mesh_size, GetObstacleData());
 			nav_mesh->RandomStart();
 			nav_mesh->RandomEnd();
 			A_Star::Find(*nav_mesh);

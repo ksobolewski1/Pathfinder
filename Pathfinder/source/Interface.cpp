@@ -135,6 +135,7 @@ void Interface::Reset() {
     dragging = false; 
     drag_node_id = -1; 
     if (nav_mesh != nullptr) delete nav_mesh;
+    nav_mesh = nullptr; 
 }
 
 
