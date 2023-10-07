@@ -194,7 +194,6 @@ struct Triangle {
 	struct Point vertices[3];
 	struct PolyEdge edges[3];
 	struct Circumcircle circumcircle;
-	int index; // the index records the index at which the triangle is contained in the triangles array, for more efficient bad triangle removal 
 };
 
 struct Circumcircle GetCircumcircle(struct Triangle triangle) {
@@ -243,8 +242,6 @@ struct Triangle GetSuperTriangle(float excircle_rad, float excircle_pos_x, float
 
 	triangle.circumcircle = GetCircumcircle(triangle);
 
-	triangle.index = 0; 
-
 	return triangle;
 }
 
@@ -255,11 +252,7 @@ int HasEdge(struct PolyEdge edge, struct Triangle tr) {
 
 // triangles array methods 
 void RemoveTriangle(int arr_size, struct Triangle* t_arr, int at_index) {
-	
-	for (int i = at_index; i < arr_size - 1; ++i) {
-		t_arr[i] = t_arr[i + 1];
-		--t_arr[i].index;
-	}
+	for (int i = at_index; i < arr_size - 1; ++i) t_arr[i] = t_arr[i + 1];
 }
 
 struct Triangle* ResizeTrianglesArray(int arr_size, struct Triangle* t_arr) {
@@ -317,7 +310,14 @@ struct Edge* BowyerWatson(int pt_count, struct Point* points, float excircle_rad
 		int bad_tr_count = 0;
 		// get all the "bad triangles" (bad because their circumcircle contains points[pt_i]) to define the polygon hole in which points[pt_i] will be triangulated
 		for (int j = 0; j < tr_count; ++j) {
-			if (CircumcircleContains(points[pt_i], triangles[j].circumcircle)) bad_tr[bad_tr_count++] = triangles[j];
+
+			if (CircumcircleContains(points[pt_i], triangles[j].circumcircle)) {
+				bad_tr[bad_tr_count++] = triangles[j];
+				RemoveTriangle(tr_count, triangles, j);
+				--j;
+				--tr_count;
+			}
+
 		}
 
 		// representing the polygon hole with poly_edges lookup array, consisting of all unique edges of the bad triangles
@@ -358,13 +358,6 @@ struct Edge* BowyerWatson(int pt_count, struct Point* points, float excircle_rad
 			}
 		}
 
-		// Remove the bad triangles from triangles 
-		// since bad_tr array contains copies of triangles, decrementing indices in RemoveTriangle() has no effect on bad_tr triangles; int cumulative keeps track of these decrements 
-		for (int i = 0, cumulative = 0; i < bad_tr_count; ++i, ++cumulative) {
-			RemoveTriangle(tr_count, triangles, bad_tr[i].index - cumulative);
-			--tr_count;
-		}
-
 		// create new triangles out of the polygon and add them to triangles 
 		for (int i = 0; i < edges_arr_size; ++i) {
 
@@ -385,7 +378,6 @@ struct Edge* BowyerWatson(int pt_count, struct Point* points, float excircle_rad
 			next.edges[2] = three;
 
 			next.circumcircle = GetCircumcircle(next);
-			next.index = tr_count; 
 			triangles[tr_count++] = next;
 
 			if (tr_count / (float)tr_arr_size > resize_threshold) { // in case the new triangle addition crossed the resize_threshold 
@@ -408,7 +400,7 @@ struct Edge* BowyerWatson(int pt_count, struct Point* points, float excircle_rad
 		}
 	}
 	
-	// assemble the return array // most edges are duplicated, and are skipped using a lookup table similar to polygon hole edges above 
+	// assemble the return array // most edges are duplicated, and are skipped using a lookup table similar to the way polygon hole edges are processed in the main loop 
 	int edge_count = 0; 
 	int lookup_size = tr_count * 3;
 
