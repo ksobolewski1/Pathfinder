@@ -16,7 +16,6 @@ private:
 		Node() = default; 
 		Node(const NavMesh::NodeData& d) : data(d) {}
 
-		float gcost_scalar = 0.42f; 
 		float h_cost = 0.0f; // distance from this node to destination node
 		float g_cost = 0.0f; // the total cost of the path taken from the start to reach this node 
 
@@ -87,7 +86,7 @@ public:
 		if (i > N) return;
 
 		int prev = i;
-		if (GetLeftChild(i) <= N && comparator(vect[i], vect[GetLeftChild(i)])) prev = GetLeftChild(i);
+		if (GetLeftChild(i) <= N && comparator(vect[GetLeftChild(i)], vect[i])) prev = GetLeftChild(i);
 		if (GetRightChild(i) <= N && comparator(vect[GetRightChild(i)], vect[prev])) prev = GetRightChild(i);
 
 		if (prev != i) {

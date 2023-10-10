@@ -9,7 +9,7 @@ std::vector<int> A_Star::Find(const NavMesh& mesh) {
 	std::vector<Node*> memory_vect; // to keep track of any dynamic allocations
 
 	// accepts a lambda to compare nodes in Heap::HeapUp() and Heap::HeapDown();
-	Heap<Node, int> queue = Heap<Node, int>([](Node* n1, Node* n2) {return n1->h_cost + (n1->g_cost * n1->gcost_scalar) < n2->h_cost + (n2->g_cost * n2->gcost_scalar);});
+	Heap<Node, int> queue = Heap<Node, int>([](Node* n1, Node* n2) {return n1->h_cost + n1->g_cost < n2->h_cost + n2->g_cost;});
 
 	Node* entry_point = new Node(std::move(mesh.GetEntryPointData()));
 	sf::Vector2f destination_pos = mesh.GetNodeData(mesh.GetDestinationID()).position;
